@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformers - Generate</title>
+
+    <style>
+        html, body {
+            block-size: 100%;
+        }
+
+        body {
+            display: grid;
+            grid-template-rows: 1fr 100px;
+        }
+
+        .chat {
+            padding: 20px;
+            height: 100%;
+            overflow-y: scroll;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            padding: 20px;
+            border-top: 1px solid #ccc;
+
+            input {
+                inline-size: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section id="chat" class="chat"></section>
+    <form id="generate-form">
+        <label for="prompt-input">
+            <input type="text" id="prompt-input" name="prompt" placeholder="Type your prompt here..." />
+        </label>
+        <button type="submit">Generate</button>
+    </form>
+</body>
+</html>
+
+<script>
+    const form = document.getElementById('generate-form');
+    const chatSection = document.getElementById('chat');
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const promptInput = document.getElementById('prompt-input').value;
+
+        const promptDiv = document.createElement('div');
+        promptDiv.classList.add('user-prompt');
+        promptDiv.textContent = `User: ${promptInput}`;
+        chatSection.appendChild(promptDiv);
+
+        promptInput.value = '';
+
+        // Call your backend API to process the prompt
+        const response = await fetch('/generate-text', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: `${promptInput}` }),
+        });
+
+        const result = await response.json();
+        
+        // Display the generated text in the chat section
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('generated-text');
+        messageDiv.textContent = `Bot: ${result[0].generated_text}`;
+        chatSection.appendChild(messageDiv);
+
+        console.log('Text generated:', result);
+    });
+</script>
