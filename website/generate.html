@@ -19,6 +19,18 @@
             padding: 20px;
             height: 100%;
             overflow-y: scroll;
+
+            & > div {
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 16px;
+                margin-block: 8px;
+            }
+
+            & > .generated-text {
+                border-color: blue;
+                background-color: hsl(from blue h s l / 0.1);
+            }
         }
 
         form {
@@ -28,8 +40,9 @@
             padding: 20px;
             border-top: 1px solid #ccc;
 
-            input {
+            textarea {
                 inline-size: 100%;
+                field-sizing: content;
             }
         }
     </style>
@@ -38,7 +51,7 @@
     <section id="chat" class="chat"></section>
     <form id="generate-form">
         <label for="prompt-input">
-            <input type="text" id="prompt-input" name="prompt" placeholder="Type your prompt here..." />
+            <textarea id="prompt-input" name="prompt" placeholder="Type your prompt here..."></textarea>
         </label>
         <button type="submit">Generate</button>
     </form>

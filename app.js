@@ -6,6 +6,7 @@ import fs from 'fs';
 import { summarizationRequestHandler } from './summarization.js';
 import { classificationRequestHandler } from './classification.js';
 import { textGenerationRequestHandler } from './text-generation.js';
+import { questionAnsweringRequestHandler } from './question-answering.js';
 
 const server = http.createServer();
 const hostname = '127.0.0.1';
@@ -13,10 +14,11 @@ const port = 3000;
 
 const summaryHTMLFile = await fs.promises.readFile('./website/summary.html', 'utf-8');
 const textGenerationHTMLFile = await fs.promises.readFile('./website/generate.html', 'utf-8');
+const questionAnsweringHTMLFile = await fs.promises.readFile('./website/answer.html', 'utf-8');
 
 server.on('request', async (req, res) => {
-    const pasrsedUrl = url.parse(req.url);
-    let { text } = querystring.parse(pasrsedUrl.query);
+    const parsedUrl = url.parse(req.url);
+    let { text, context, question } = querystring.parse(parsedUrl.query);
 
     if (req.method === 'POST') {
         let body = '';
@@ -28,6 +30,8 @@ server.on('request', async (req, res) => {
                 req.on('end', () => {
                     const parsedBody = JSON.parse(body);
                     text = parsedBody.text;
+                    context = parsedBody.context;
+                    question = parsedBody.question;
                     resolve();
                 });
             } catch (e) {
@@ -36,7 +40,7 @@ server.on('request', async (req, res) => {
         });
     }
 
-    switch (pasrsedUrl.pathname) {
+    switch (parsedUrl.pathname) {
         case '/summary':
             res.statusCode = 200;
             res.setHeader('Content-Type', 'text/html');
@@ -47,6 +51,11 @@ server.on('request', async (req, res) => {
             res.setHeader('Content-Type', 'text/html');
             res.end(textGenerationHTMLFile);
             break;
+        case '/answer':
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/html');
+            res.end(questionAnsweringHTMLFile);
+            break;
         case '/summarize':
             await summarizationRequestHandler({ text, res });
             break;
@@ -55,6 +64,9 @@ server.on('request', async (req, res) => {
             break;
         case '/generate-text':
             await textGenerationRequestHandler({ text, res });
+            break;
+        case '/answer-question':
+            await questionAnsweringRequestHandler({ question, context, res });
             break;
         default:
             res.statusCode = 404;

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformers - Answer</title>
+
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .inputs form {
+            display: grid;
+            gap: 10px;
+        }
+
+        textarea {
+            field-sizing: content;
+            inline-size: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="inputs">
+            <form id="qa-form">
+                <label for="context">
+                    <span>Context:</span>
+                    <textarea id="context"></textarea>
+                </label>
+                <label for="question">
+                    <span>Question:</span>
+                    <textarea id="question"></textarea>
+                </label>
+                <button id="submit-btn" type="submit">Submit</button>
+            </form>
+        </section>
+        <section class="output">
+            <h2>Answer:</h2>
+            <div id="answer-content"></div>
+        </section>
+    </div>
+</body>
+</html>
+
+<script>
+    const form = document.getElementById('qa-form');
+    const answerContent = document.getElementById('answer-content');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const context = document.getElementById('context').value;
+        const question = document.getElementById('question').value;
+
+        // Call your backend API to get the answer
+        const response = await fetch('/answer-question', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ context: context, question: question }),
+        });
+
+        const result = await response.json();
+        answerContent.textContent = result.answer;
+        console.log('Answer generated:', result);
+    });
+</script>
